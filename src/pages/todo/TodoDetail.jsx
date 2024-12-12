@@ -1,11 +1,14 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { TodoContext } from "../../contexts/TodoContext";
 
-function TodoDetail({ todoList }) {
+function TodoDetail() {
+  const { todoList } = useContext(TodoContext);
+
   // js 로 패스 이동하기
   const navigate = useNavigate();
   // SearchParams 를 이용해서 내용 출력
-  const [searchParams, _] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const id = parseInt(searchParams.get("id"));
   const [todo, setTodo] = useState({});
 

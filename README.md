@@ -20,13 +20,10 @@ todo-demo-react
 ├─ package-lock.json
 ├─ package.json
 ├─ public
-│  └─ vite.svg
 ├─ README.md
 ├─ src
-│  ├─ apis
 │  ├─ App.css
 │  ├─ App.jsx
-│  ├─ assets
 │  ├─ components
 │  │  ├─ basic
 │  │  │  ├─ Footer.jsx
@@ -35,15 +32,18 @@ todo-demo-react
 │  │  └─ todo
 │  │     └─ TodoItem.jsx
 │  ├─ contants
+│  │  └─ mockdata.js
+│  ├─ contexts
 │  ├─ index.css
 │  ├─ main.jsx
-│  ├─ pages
-│  │  ├─ About.jsx
-│  │  └─ todo
-│  │     ├─ TodoDetail.jsx
-│  │     ├─ TodoEdit.jsx
-│  │     └─ TodoList.jsx
-│  └─ utils
+│  └─ pages
+│     ├─ About.jsx
+│     ├─ NotFound.jsx
+│     └─ todo
+│        ├─ Index.jsx
+│        ├─ TodoAdd.jsx
+│        ├─ TodoDetail.jsx
+│        └─ TodoEdit.jsx
 └─ vite.config.js
 
 ```
