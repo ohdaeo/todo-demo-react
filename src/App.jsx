@@ -10,6 +10,9 @@ import TodoDetail from "./pages/todo/TodoDetail";
 import TodoEdit from "./pages/todo/TodoEdit";
 import { LoginProvider } from "./contexts/LoginContext";
 import Join from "./member/Join";
+import LoginPage from "./member/LoginPage";
+import Schedule from "./pages/calender/Schedule";
+import RangeSchedule from "./pages/calender/RangeSchedule";
 
 // 내일 우리는 LocalStrage 와 React Context 로 알면 됨.
 
@@ -25,6 +28,11 @@ function App() {
                 <Route path="/" element={<About />} />
                 {/* 회원가입 */}
                 <Route path="/member" element={<Join />} />
+                {/* 로그인 */}
+                <Route path="/login" element={<LoginPage />} />
+                {/* 캘린더 */}
+                <Route path="/schedule" element={<Schedule />}></Route>
+                <Route path="/range" element={<RangeSchedule />}></Route>
                 {/* Todo 중첩 */}
                 <Route path="/todo">
                   <Route index element={<TodoIndex />}></Route>

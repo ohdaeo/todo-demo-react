@@ -1,9 +1,9 @@
 import styled from "@emotion/styled";
 import * as yup from "yup";
-import { yupResolver } from "";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-const ErrorDiv = styled.div`
+import { yupResolver } from "@hookform/resolvers/yup";
+export const ErrorDiv = styled.div`
   width: 100%;
   color: red;
   font-size: 10px;
@@ -17,14 +17,38 @@ Yup 적용
 const schema = yup.object({
   name: yup
     .string()
-    .required("아이디는 4~15자 이내 영문 소문자와 숫자로만 입력해 주세요. "),
+    .min(2, "최소 2글자 이상 입력해주세요.")
+    .required("이름을 입력해주세요"),
   email: yup
     .string()
     .email("잘못된 이메일 형식이에요.")
     .required("이메일을 입력해주세요."),
+  password: yup
+    .string()
+    .required("최소 8자 이상 입력해주세요")
+    .min(8, "대/소문자+숫자+특수 문자(!?@$~^) 조합 8자 이상 입력해 주세요.")
+    .max(16, "최대 16글자 이하로 입력해주세요")
+    .matches(
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]+$/,
+      "대/소문자+숫자+특수 문자(!?@$~^) 조합 8자 이상 입력해 주세요.",
+    ),
+  pwconfirm: yup
+    .string()
+    .oneOf([yup.ref("password")], "비밀번호를 다시 확인해 주세요.")
+    .required("비밀번호를 다시 확인해 주세요."),
+  policy: yup.boolean().oneOf([true]).required("이용약관에 동의해주세요."),
 });
 
-//2. schema 에 hookfrom을 연결한다.
+const formatPhoneNumber = value => {
+  if (!value) return value;
+  const phoneNumber = value.replace(/[^\d]/g, "");
+  const phoneNumberLength = phoneNumber.length;
+  if (phoneNumberLength < 4) return phoneNumber;
+  if (phoneNumberLength < 8) {
+    return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3)}`;
+  }
+  return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3, 7)}-${phoneNumber.slice(7, 11)}`;
+};
 
 /*form을 state로 작동시키면, 
 많은 양의 리랜더링이 발생하여 글자를 한 개만 적어도 리랜더링이 일어난다.
@@ -59,13 +83,14 @@ function Join() {
   - onSubmit 실행 시 폼 유효성 검사실행
   - all :  onChange 와 onBlur 모두 포함
   - trigger : 초기 화면 출력 시 폼 유효성 검사실행하기
+  - setValue : form의 value값을 강제로 대입
   
   */
   const {
     register,
+    setValue,
     handleSubmit,
     reset,
-    getValues,
     trigger,
     formState: { errors }, // form의 error 상태를 확인 후 유효성 검사 적용
   } = useForm({
@@ -82,20 +107,56 @@ function Join() {
         basic: "",
         detail: "",
       },
-      agreementpolicy: false,
       policy: false,
     },
     mode: "all",
+    //2. schema 에 hookfrom을 연결한다.
     resolver: yupResolver(schema),
   });
   //전송용 데이터
   const onSubmit = data => {
-    console.log(data);
+    console.log("전송시 데이터 ", data);
+    const sendData = { ...data, phone: data.phone.replaceAll("-", "") };
+    console.log("전송시 데이터 sendData ", sendData);
   };
 
   useEffect(() => {
     trigger();
   }, [trigger]);
+
+  //Daum Postcode
+  //npm i react-daum-postcode
+
+  /*
+  1. 외부 자바스크립트를 불러오기
+  */
+  useEffect(() => {
+    // Daum 우편번호 스크립트 로드
+    const script = document.createElement("script");
+    script.src =
+      "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    // 컴포넌트 언마운트 시 스크립트 제거
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  //2. 선택 시 주소 창 출력
+  const handleAddressSearch = () => {
+    new window.daum.Postcode({
+      oncomplete: data => {
+        // 우편번호와 기본주소 입력
+        setValue("address.postcode", data.zonecode);
+        setValue("address.basic", data.address);
+
+        // 상세주소 입력 필드로 포커스 이동
+        document.querySelector('input[name="address.detail"]').focus();
+      },
+    }).open();
+  };
 
   return (
     <div style={{ margin: "auto", textAlign: "center" }}>
@@ -118,42 +179,14 @@ function Join() {
           <div>
             <label htmlFor="">
               비밀번호
-              <input
-                type="password"
-                {...register("password", {
-                  required: "비밀번호를 입력해주세요",
-                  minLength: {
-                    value: 8,
-                    message:
-                      "대/소문자+숫자+특수 문자(!?@$~^) 조합 8자 이상 입력해 주세요.",
-                  },
-                  maxLength: {
-                    value: 16,
-                    message: "최대 16자 이하로 입력해주세요.",
-                  },
-                  pattern: {
-                    value:
-                      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
-                    message:
-                      "대/소문자+숫자+특수 문자(!?@$~^) 조합 8자 이상 입력해 주세요.",
-                  },
-                })}
-              />
+              <input type="password" {...register("password")} />
             </label>
             {errors.password && <ErrorDiv>{errors.password.message}</ErrorDiv>}
           </div>
           <div>
             <label htmlFor="">
               비밀번호 재확인
-              <input
-                type="password"
-                {...register("pwconfirm", {
-                  required: "비밀번호를 입력해 주세요.",
-                  validate: value =>
-                    value === getValues("password") ||
-                    "비밀번호를 다시 확인해 주세요.",
-                })}
-              />
+              <input type="password" {...register("pwconfirm")} />
             </label>
             {errors.pwconfirm && (
               <ErrorDiv>{errors.pwconfirm.message}</ErrorDiv>
@@ -162,10 +195,7 @@ function Join() {
         </div>
         <label htmlFor="">
           생년월일
-          <input
-            type="date"
-            {...register("birthday", { required: "생년월일을 입력해주세요" })}
-          />
+          <input type="date" {...register("birthday")} />
         </label>
         {errors.birthday && <ErrorDiv>{errors.birthday.message}</ErrorDiv>}
 
@@ -183,13 +213,11 @@ function Join() {
               연락처
               <input
                 type="tel"
-                {...register("phone", {
-                  required: "연락처를 입력해주세요",
-                  pattern: {
-                    value: /^01([0|1|6|7|8|9])-?([0-9]{3,4})-?([0-9]{4})$/,
-                    message: "",
-                  },
-                })}
+                {...register("phone")}
+                onChange={e => {
+                  const tempPhone = formatPhoneNumber(e.target.value);
+                  setValue("phone", tempPhone); // 강제로 값을 대입시킴
+                }}
               />
             </label>
             {errors.phone && <ErrorDiv>{errors.phone.message}</ErrorDiv>}
@@ -202,6 +230,13 @@ function Join() {
                 {...register("address.postcode")}
                 placeholder="우편번호를 입력해주세요"
               />
+              <button
+                onClick={() => {
+                  handleAddressSearch();
+                }}
+              >
+                주소 검색
+              </button>
             </label>
           </div>
           <div>
