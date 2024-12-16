@@ -13,6 +13,7 @@ import Join from "./member/Join";
 import LoginPage from "./member/LoginPage";
 import Schedule from "./pages/calender/Schedule";
 import RangeSchedule from "./pages/calender/RangeSchedule";
+import Full from "./pages/calender/Full";
 
 // 내일 우리는 LocalStrage 와 React Context 로 알면 됨.
 
@@ -33,6 +34,8 @@ function App() {
                 {/* 캘린더 */}
                 <Route path="/schedule" element={<Schedule />}></Route>
                 <Route path="/range" element={<RangeSchedule />}></Route>
+                {/* 풀 캘린더 */}
+                <Route path="/full" element={<Full />}></Route>
                 {/* Todo 중첩 */}
                 <Route path="/todo">
                   <Route index element={<TodoIndex />}></Route>

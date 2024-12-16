@@ -9,6 +9,8 @@ import {
 import { Link } from "react-router-dom";
 import { LoginContext } from "../../contexts/LoginContext";
 import { ThemeContext } from "../../contexts/ThemeContext";
+import Full from "../../pages/calender/Full";
+import { MdViewTimeline } from "react-icons/md";
 
 const Header = () => {
   const { hanedleChangeTheme } = useContext(ThemeContext);
@@ -48,6 +50,11 @@ const Header = () => {
       <Link to={"/range"}>
         <BsCalendar3RangeFill />
         일정
+      </Link>{" "}
+      |{" "}
+      <Link to={"/full"}>
+        <MdViewTimeline />
+        스케줄러
       </Link>{" "}
       <button
         onClick={() => {
